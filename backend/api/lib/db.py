@@ -3,8 +3,8 @@ from flask import g
 import psycopg2
 
 
-TEST_DB_NAME = 'imdb_movies_test'
-DB_NAME = 'imdb_movies'
+TEST_DB_NAME = 'adventureworks_test'
+DB_NAME = 'adventureworks'
 
 test_conn = psycopg2.connect(dbname = TEST_DB_NAME)
 test_cursor = test_conn.cursor()
@@ -23,6 +23,7 @@ def close_db(e=None):
         db.close()
 
 def drop_records(cursor, conn, table_name):
+    
     cursor.execute(f"DELETE FROM {table_name};")
     conn.commit()
 
@@ -31,6 +32,10 @@ def drop_table_records(table_names, cursor, conn):
         drop_records(cursor, conn, table_name)
 
 def drop_all_table_records(conn, cursor):
-    table_names = ['actors', 'directors', 'movie_actors',
-                    'movie_directors', 'movie_writers', 'movies', 'writers']
+    table_names = ["CountryRegion", "PersonPhone", "PhoneNumberType", 
+  "Password", "EmailAddress", "BusinessEntityContact", 
+  "ContactType", "BusinessEntityAddress", "ContactType",
+  "BusinessEntityAddress", "AddressType", "StateProvince", "Person", "BusinessEntity"]
     drop_table_records(table_names, cursor, conn)
+
+

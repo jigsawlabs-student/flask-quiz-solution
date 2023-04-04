@@ -1,7 +1,7 @@
 import pytest
-from flask import json
+import json
 from api import create_app
-from api.models.movie import Movie
+from api.models.person import Movie
 from api.lib.db import drop_records, get_db, close_db
 from api.lib.orm import save
 
@@ -31,11 +31,14 @@ def app():
 
 
 def build_records(conn, cursor):
-    fast_five = Movie(title = 'fast and furious')
-    shawshank = Movie(title = 'shawshank')
-    save(fast_five, conn, cursor)
-    save(shawshank, conn, cursor)
+    # cursor.execute(f"ALTER SEQUENCE movies_id_seq RESTART WITH 1;")
+    # conn.commit()
+    for i in range(1, 15):
+        fast_and_furious = Movie(title = f'Fast and Furious: {i}')
+        save(fast_and_furious, conn, cursor)
     
+    shawshank = Movie(title = 'shawshank')
+    save(shawshank, conn, cursor)
 
 @pytest.fixture
 def client(app):
@@ -46,25 +49,14 @@ def test_root_url(app, client):
     response = client.get('/')
     assert b'welcome to the imdb movies app' in response.data
 
-# def test_restaurants_index(app, client):
-#     response = client.get('/venues')
-#     json_response = json.loads(response.data)
+def test_movies_url_returns_first_ten_movies(app, client):
+    response = client.get('/movies')
+    dicts = json.loads(response.data)
+    assert len(dicts) == 10
 
-#     assert len(json_response) == 2
-    
-#     assert json_response[0]['name'] == 'La Famiglia'
-#     assert json_response[1]['name'] == 'Cafe Mogador'
-#     assert set(json_response[0].keys()) == set(['id', 'foursquare_id', 'name', 'price',
-#      'rating', 'likes', 'menu_url'])
+def test_movies_show_returns_the_specified_movie(app, client):
+    response = client.get('/movies/shawshank')
+    movie_dict = json.loads(response.data)
+    assert movie_dict['title'] == 'shawshank'
+    # assert movie_dict['title'] == 'Fast and Furious: 2'
 
-# def test_restaurants_show(app, client):
-#     with app.app_context():
-#         conn = get_db()
-#         cursor = conn.cursor()
-    
-#     cursor.execute('select * from venues order by id desc limit 1;')
-#     last_venue_id = cursor.fetchone()[0]
-    
-#     response = client.get(f'/venues/{last_venue_id}')
-#     json_response = json.loads(response.data)
-#     last_record_id = json_response['id'] == last_venue_id
