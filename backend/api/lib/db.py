@@ -1,10 +1,10 @@
 from flask import current_app
 from flask import g
+from api.lib.orm import build_from_record
 import psycopg2
+from settings import TEST_DB_NAME, DB_NAME
 
 
-TEST_DB_NAME = 'adventureworks_test'
-DB_NAME = 'adventureworks'
 
 test_conn = psycopg2.connect(dbname = TEST_DB_NAME)
 test_cursor = test_conn.cursor()
@@ -39,3 +39,21 @@ def drop_all_table_records(conn, cursor):
     drop_table_records(table_names, cursor, conn)
 
 
+def save(obj, conn, cursor):
+    s_str = ', '.join(len(values(obj)) * ['%s'])
+    venue_str = f"""INSERT INTO {obj.__table__} ({keys(obj)}) VALUES ({s_str}) RETURNING businessentityid;"""
+    cursor.execute(venue_str, list(values(obj)))
+    id = cursor.fetchone()
+    conn.commit()
+    cursor.execute(f'SELECT * FROM {obj.__table__} where businessentityid = %s', (id,))
+    record = cursor.fetchone()
+    return build_from_record(type(obj), record)
+
+def values(obj):
+    venue_attrs = obj.__dict__
+    return [venue_attrs[attr] for attr in obj.columns if attr in venue_attrs.keys()]
+
+def keys(obj):
+    venue_attrs = obj.__dict__
+    selected = [attr for attr in obj.columns if attr in venue_attrs.keys()]
+    return ', '.join(selected)

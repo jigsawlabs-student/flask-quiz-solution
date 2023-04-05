@@ -1,11 +1,9 @@
-from api.lib.orm import find_all, save, find
+from api.lib.orm import find_all, find
 from api.models.person import Person
-from api.lib.db import drop_all_table_records, test_cursor, test_conn, drop_table_records, drop_records
+from api.lib.db import test_cursor, test_conn, drop_records, save
 import pytest
 
 def build_records(conn, cursor):
-    # cursor.execute(f"ALTER SEQUENCE person.person_id_seq RESTART WITH 1;")
-    conn.commit()
     for i in range(1, 15):
         sam = Person(firstname =f'Sam {i}', lastname = 'ok', businessentityid = i, persontype = 'EM')
         
@@ -14,7 +12,6 @@ def build_records(conn, cursor):
 
 @pytest.fixture()
 def build_people():
-    
     drop_records(test_cursor, test_conn, 'person.person')
     build_records(test_conn, test_cursor)
 

@@ -11,23 +11,23 @@ def create_app(db_name):
 
     @app.route('/')
     def root_url():
-        return "welcome to the imdb movies app"
+        return "welcome to the adventureworks app"
     
-    @app.route('/movies')
-    def movies():
-        movies = find_all(cursor, Movie)
-        movie_dicts = [movie.__dict__ for movie in movies]
-        
-        return json.dumps(movie_dicts, default = str)
+    @app.route('/persons')
+    def persons():
+        persons = find_all(cursor, Person)
+        person_dicts = [person.__dict__ for person in persons]
+        return json.dumps(person_dicts, default = str)
     
-    @app.route('/movies/<title>')
-    def get_movie(title):
+    @app.route('/persons/lastname/<lastname>')
+    def get_persons(lastname):
         conn = psycopg2.connect(dbname = db_name)
         cursor = conn.cursor()
         
-        cursor.execute('select * from movies where title = %s', (title,))
-        record = cursor.fetchone()
-        movie = build_from_record(Movie, record)
-        return json.dumps(movie.__dict__, default = str)
+        cursor.execute('select * from person.person where lastname = %s', (lastname,))
+        records = cursor.fetchall()
+        persons = [build_from_record(Person, record) for record in records]
+        person_dicts = [person.__dict__ for person in persons]
+        return json.dumps(person_dicts, default = str)
 
     return app
