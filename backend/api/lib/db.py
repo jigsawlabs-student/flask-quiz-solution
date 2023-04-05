@@ -9,8 +9,7 @@ from settings import TEST_DB_NAME, DB_NAME
 test_conn = psycopg2.connect(dbname = TEST_DB_NAME)
 test_cursor = test_conn.cursor()
 
-conn = psycopg2.connect(dbname = DB_NAME)
-cursor = conn.cursor()
+
 
 def get_db():
     if "db" not in g:
@@ -46,6 +45,16 @@ def save(obj, conn, cursor):
     id = cursor.fetchone()
     conn.commit()
     cursor.execute(f'SELECT * FROM {obj.__table__} where businessentityid = %s', (id,))
+    record = cursor.fetchone()
+    return build_from_record(type(obj), record)
+
+def save_address(obj, conn, cursor):
+    s_str = ', '.join(len(values(obj)) * ['%s'])
+    venue_str = f"""INSERT INTO {obj.__table__} ({keys(obj)}) VALUES ({s_str}) RETURNING addressid;"""
+    cursor.execute(venue_str, list(values(obj)))
+    id = cursor.fetchone()
+    conn.commit()
+    cursor.execute(f'SELECT * FROM {obj.__table__} where addressid = %s', (id,))
     record = cursor.fetchone()
     return build_from_record(type(obj), record)
 

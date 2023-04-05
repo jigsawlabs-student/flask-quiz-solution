@@ -1,5 +1,8 @@
 def find(cursor, cls, id):
-    cursor.execute(f'select * from {cls.__table__} where businessentityid = {id}')
+    
+    query = f'select * from {cls.__table__} where businessentityid = %s'
+    
+    cursor.execute(query, (id,))
     record = cursor.fetchone()
     return build_from_record(cls, record)
 
