@@ -27,10 +27,11 @@ class Person:
             return saved_person
         
     def addresses(self, cursor):
+        
         query = '''select person.address.* from person.address 
         join person.businessentityaddress 
         on person.address.addressid = person.businessentityaddress.addressid 
-        join person.person on person.person.businessentityid = person.businessentityaddress.businessentityid
+        join person.person on person.businessentityaddress.businessentityid = person.person.businessentityid 
         where person.person.businessentityid = %s
         '''
         cursor.execute(query, (self.businessentityid,))

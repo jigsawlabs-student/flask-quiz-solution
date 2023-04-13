@@ -46,10 +46,11 @@ def create_app(db_name):
         conn = get_db()
         cursor = conn.cursor()
         person = find(cursor, Person, businessentityid)
+        # select * from person.person where businessenitid = 
+        # person.addresses()
+        # 
         
         person_json = person.to_json(cursor)
         return json.dumps(person_json, default = str)
-
-
 
     return app

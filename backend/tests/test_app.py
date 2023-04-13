@@ -52,17 +52,28 @@ def build_records(conn, cursor):
     bea2 = BusinessEntityAddress(addressid = address_2.addressid, addresstypeid = 1,
                                  businessentityid = bob.businessentityid)
     save(bea2, conn, cursor)
+    address_3 = Address(addressid = 3,addressline1 = 'other non-juliett',
+                    addressline2 = 'earth', city= 'nyc west', stateprovinceid = 12, 
+                    postalcode = 11231, spatiallocation = 'ok')
+    save_address(address_3, conn, cursor)
+    bea3 = BusinessEntityAddress(addressid = address_3.addressid, addresstypeid = 1,
+                                 businessentityid = sam.businessentityid)
+    save(bea3, conn, cursor)
     
 
 @pytest.fixture()
 def build_people():
     
     drop_records(test_cursor, test_conn, 'person.person')
+    drop_records(test_cursor, test_conn, 'person.businessentityaddress')
+    drop_records(test_cursor, test_conn, 'person.address')
     build_records(test_conn, test_cursor)
 
     yield
 
     drop_records(test_cursor, test_conn, 'person.person')
+    drop_records(test_cursor, test_conn, 'person.businessentityaddress')
+    drop_records(test_cursor, test_conn, 'person.address')
 
 @pytest.fixture
 def client(app):
@@ -88,7 +99,7 @@ def test_addresses_returns_all_of_the_addresses(app, client):
     addresses = json.loads(response.data)
     first_address = addresses[0]
     assert first_address['addressline1'] == '123 romeo'
-    assert len(addresses) == 2
+    assert len(addresses) == 3
 
 
 def test_person_with_address_returns_address_info_along_with_person(app, client):
